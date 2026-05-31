@@ -1,4 +1,4 @@
-# ResumeAI ATS Optimizer
+# **SyncCV**
 
 ResumeAI is an intelligent, Next.js-powered application that uses Google's Gemini AI to automatically optimize your resume for specific job descriptions. It ensures your resume beats Applicant Tracking Systems (ATS) by seamlessly weaving missing keywords into your experience and skills, while also generating a tailored cover letter.
 
