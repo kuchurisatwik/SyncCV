@@ -46,7 +46,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
   if (!data) return null;
 
   return (
-    <div className="bg-white text-black p-6 md:p-8 font-serif w-full max-w-[210mm] min-h-[297mm] mx-auto shadow-md border border-slate-200 print:shadow-none print:border-0 print:px-8 print:py-6 print:max-w-none print:min-h-0">
+    <div className="bg-white text-black p-6 md:p-8 font-serif w-full max-w-[210mm] min-h-[297mm] h-[297mm] flex flex-col justify-between mx-auto shadow-md border border-slate-200 print:shadow-none print:border-0 print:px-8 print:py-6 print:max-w-none print:h-[297mm]">
       {/* Header */}
       <header className="text-center mb-4">
         <h1 className="text-2xl font-bold uppercase tracking-wider mb-1">{data.basics?.name || "Name"}</h1>
@@ -71,7 +71,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
       {data.basics?.summary && (
         <section className="mb-2">
           <h2 className="text-xs font-bold uppercase border-b border-black pb-0.5 mb-1 tracking-widest">Professional Summary</h2>
-          <p className="text-xs leading-tight text-justify">{data.basics.summary}</p>
+          <p className="text-xs leading-[1.4] text-justify">{data.basics.summary}</p>
         </section>
       )}
 
@@ -79,7 +79,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
       {data.skills && data.skills.length > 0 && (
         <section className="mb-2">
           <h2 className="text-xs font-bold uppercase border-b border-black pb-0.5 mb-1 tracking-widest">Technical Skills</h2>
-          <div className="text-xs space-y-0.5">
+          <div className="text-xs space-y-1 leading-[1.3]">
             {data.skills.map((skillGroup, idx) => (
               <div key={idx} className="leading-tight">
                 <span className="font-bold">{skillGroup.category}:</span> {skillGroup.keywords?.join(", ")}
@@ -104,7 +104,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
                   <span className="italic text-[11px]">{exp.company}</span>
                   <span className="italic text-[11px]">{exp.location}</span>
                 </div>
-                <ul className="list-disc list-outside ml-4 text-xs space-y-0.5 leading-tight text-justify">
+                <ul className="list-disc list-outside ml-4 text-xs space-y-1 leading-[1.3] text-justify">
                   {exp.highlights?.map((hl, hIdx) => (
                     <li key={hIdx}>{hl}</li>
                   ))}
@@ -128,7 +128,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
                   </h3>
                 </div>
                 {proj.description && <p className="text-xs mb-0.5 leading-tight">{proj.description}</p>}
-                <ul className="list-disc list-outside ml-4 text-xs space-y-0.5 leading-tight text-justify">
+                <ul className="list-disc list-outside ml-4 text-xs space-y-1 leading-[1.3] text-justify">
                   {proj.highlights?.map((hl, hIdx) => (
                     <li key={hIdx}>{hl}</li>
                   ))}
@@ -164,7 +164,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
       {data.certifications && data.certifications.length > 0 && (
         <section className="mb-2">
           <h2 className="text-xs font-bold uppercase border-b border-black pb-0.5 mb-1 tracking-widest">Certifications</h2>
-          <ul className="list-disc list-outside ml-4 text-xs space-y-0.5 leading-tight">
+          <ul className="list-disc list-outside ml-4 text-xs space-y-1 leading-[1.3]">
             {data.certifications.map((cert, idx) => (
               <li key={idx}>
                 <span className="font-bold">{cert.name}</span>, {cert.issuer} {cert.date && `(${cert.date})`}
@@ -178,7 +178,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
       {data.achievements && data.achievements.length > 0 && (
         <section className="mb-2">
           <h2 className="text-xs font-bold uppercase border-b border-black pb-0.5 mb-1 tracking-widest">Achievements</h2>
-          <ul className="list-disc list-outside ml-4 text-xs space-y-0.5 leading-tight text-justify">
+          <ul className="list-disc list-outside ml-4 text-xs space-y-1 leading-[1.3] text-justify">
             {data.achievements.map((achievement, idx) => (
               <li key={idx}>{achievement}</li>
             ))}
