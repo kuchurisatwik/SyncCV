@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ResumeAI ATS Optimizer
 
-## Getting Started
+ResumeAI is an intelligent, Next.js-powered application that uses Google's Gemini AI to automatically optimize your resume for specific job descriptions. It ensures your resume beats Applicant Tracking Systems (ATS) by seamlessly weaving missing keywords into your experience and skills, while also generating a tailored cover letter.
 
-First, run the development server:
+## Features
+
+- **Smart ATS Optimization**: Automatically analyzes a Job Description (JD) and injects missing keywords into your existing resume without making up fake experiences.
+- **Dynamic Keyword Analysis**: See exactly which keywords were missing and watch your ATS match score increase in real-time.
+- **Tailored Cover Letter**: Generates a professional, concise cover letter based on your newly optimized resume and the JD.
+- **Export Options**:
+  - **Save as PDF**: Clean, print-ready PDF export (fits perfectly on a single A4 page with no ugly browser headers/footers).
+  - **Download DOCX**: Export a formatted `.docx` file for easy editing in Microsoft Word.
+- **Privacy First**: Everything runs locally in your browser. Your data is sent directly to Google's Gemini API and is never stored on a database.
+
+---
+
+## Understanding the UI
+
+The application is split into two simple panels:
+
+### 1. Left Panel (Your Inputs)
+
+- **Resume Tab**: Paste your original resume text here.
+- **Job Description Tab**: Paste the job description you are applying for.
+
+### 2. Right Panel (Your Results)
+
+- **Original**: A clean preview of your original, unedited resume.
+- **Score**: Shows your ATS Match Percentage. It lists the keywords found in your resume versus the keywords missing from the JD.
+- **Optimized**: The final, AI-enhanced resume preview. Watch as missing keywords are dynamically moved to the "Found" bucket, boosting your score to 100%!
+- **Cover Letter**: A personalized cover letter ready to be copied or downloaded.
+
+### Actions
+
+- **Settings Gear (Top Right)**: Click this to enter your Gemini API Key.
+- **Process Application**: Sends your data to the AI. Takes about 5-10 seconds.
+- **Export Buttons**: Appear after processing to download your new files.
+
+---
+
+## How to Run Locally
+
+Follow these simple steps to run the application on your own machine.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) installed on your computer.
+- A free [Google Gemini API Key](https://aistudio.google.com/app/apikey).
+
+### 1. Clone the repository and navigate into the project
+
+```bash
+git clone https://github.com/satwik-kuchuri/resume-ai-ats-optimizer.git
+cd resume-ai-ats-optimizer
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 4. Open the app
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open your browser and navigate to: [http://localhost:3000](http://localhost:3000)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 5. Add your API Key
 
-## Learn More
+Click the **Gear Icon** in the top right corner of the app, paste your Gemini API key, and hit save. You are now ready to optimize!
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js (React)
+- **Styling**: Tailwind CSS & Shadcn UI
+- **AI Engine**: Google Gemini API
+- **Icons**: Lucide React
+- **Export**: `docx` (for Word documents)
