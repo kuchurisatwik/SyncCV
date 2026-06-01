@@ -46,7 +46,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
   if (!data) return null;
 
   return (
-    <div className="bg-white text-black p-6 md:p-8 font-serif w-full max-w-[210mm] min-h-[297mm] h-[297mm] flex flex-col justify-between mx-auto shadow-md border border-slate-200 print:shadow-none print:border-0 print:px-8 print:py-6 print:max-w-none print:h-[297mm]">
+    <div id="resume-preview-content" className="bg-white text-black p-6 md:p-8 font-serif w-full max-w-[210mm] min-h-[297mm] h-[297mm] flex flex-col justify-between mx-auto shadow-md border border-slate-200 print:shadow-none print:border-0 print:px-8 print:py-6 print:max-w-none print:h-[297mm]">
       {/* Header */}
       <header className="text-center mb-4">
         <h1 className="text-2xl font-bold uppercase tracking-wider mb-1">{data.basics?.name || "Name"}</h1>

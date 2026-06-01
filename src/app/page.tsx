@@ -138,12 +138,53 @@ export default function Home() {
     }
   };
 
-  const downloadPdf = () => {
-    const originalTitle = document.title;
-    const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
-    document.title = `satwik${company}`;
-    window.print();
-    document.title = originalTitle;
+  const downloadPdf = async () => {
+    if (activeTab !== "optimized") {
+      alert("Please generate the Optimized Resume first before downloading.");
+      return;
+    }
+
+    const element = document.getElementById('resume-preview-content');
+    if (!element) {
+      alert("Resume preview element not found.");
+      return;
+    }
+
+    try {
+      const htmlToImage = await import('html-to-image');
+      
+      const jspdfModule = await import('jspdf');
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
+
+      // Add a slight delay to ensure fonts/layout are fully rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const rect = element.getBoundingClientRect();
+      
+      const imgData = await htmlToImage.toPng(element, {
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        width: rect.width,
+        height: rect.height,
+        style: {
+          margin: '0',
+          transform: 'none',
+        }
+      });
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      
+      const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+      pdf.save(`satwik${company}.pdf`);
+    } catch (error: any) {
+      console.error("Failed to generate PDF:", error);
+      alert(`Failed to generate PDF directly: ${error.message}.`);
+    }
   };
 
   const downloadDocx = () => {
