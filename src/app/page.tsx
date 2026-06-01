@@ -31,7 +31,7 @@ export default function Home() {
   const [optimizedResume, setOptimizedResume] = useState<any>(null);
   const [coverLetter, setCoverLetter] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [keywordData, setKeywordData] = useState<{ matchedKeywords: string[]; missingKeywords: string[]; matchPercentage: number } | null>(null);
+  const [keywordData, setKeywordData] = useState<{ companyName?: string; matchedKeywords: string[]; missingKeywords: string[]; matchPercentage: number } | null>(null);
   
   // State
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,6 +61,7 @@ export default function Home() {
     const newScore = totalKeywords === 0 ? 0 : Math.round((allFound.length / totalKeywords) * 100);
 
     return {
+      companyName: keywordData.companyName,
       matchedKeywords: allFound,
       missingKeywords: stillMissing,
       matchPercentage: newScore,
@@ -138,7 +139,11 @@ export default function Home() {
   };
 
   const downloadPdf = () => {
+    const originalTitle = document.title;
+    const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+    document.title = `satwik${company}`;
     window.print();
+    document.title = originalTitle;
   };
 
   const downloadDocx = () => {
@@ -208,9 +213,11 @@ export default function Home() {
         });
       }
 
-      exportToDocx(md.trim(), "Optimized_Resume.docx");
+      const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+      exportToDocx(md.trim(), `satwik${company}.docx`);
     } else if (activeTab === "cover-letter" && coverLetter) {
-      exportToDocx(coverLetter, "Cover_Letter.docx");
+      const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+      exportToDocx(coverLetter, `Cover_Letter_satwik${company}.docx`);
     }
   };
 

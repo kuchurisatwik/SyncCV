@@ -29,6 +29,7 @@ OUTPUT FORMAT:
 Return the complete analysis, optimized resume, and cover letter strictly as a JSON object adhering to the following structure. Do not wrap in markdown \`\`\`json blocks. Return ONLY the raw JSON object.
 {
   "keywordAnalysis": {
+    "companyName": "Extracted Company Name from JD (or null if not found)",
     "matchedKeywords": ["skill1", "skill2"],
     "missingKeywords": ["skill3", "skill4"],
     "matchPercentage": 75
