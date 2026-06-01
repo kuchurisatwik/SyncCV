@@ -152,7 +152,6 @@ export function ResumePreview({ data }: { data: ResumeData }) {
                 </div>
                 <div className="flex justify-between items-baseline">
                   <span className="italic text-[11px]">{edu.studyType} in {edu.area}</span>
-                  {edu.gpa && !["n/a", "na", "null", "none"].includes(edu.gpa.toLowerCase().trim()) && <span className="text-[11px]">GPA: {edu.gpa}</span>}
                 </div>
               </div>
             ))}
