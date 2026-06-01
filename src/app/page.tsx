@@ -161,7 +161,8 @@ export default function Home() {
 
       const rect = element.getBoundingClientRect();
       
-      const imgData = await htmlToImage.toPng(element, {
+      const imgData = await htmlToImage.toJpeg(element, {
+        quality: 0.95,
         pixelRatio: 2,
         backgroundColor: "#ffffff",
         width: rect.width,
@@ -177,7 +178,7 @@ export default function Home() {
         format: 'a4'
       });
 
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       
       const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
       pdf.save(`satwik${company}.pdf`);
