@@ -15,6 +15,7 @@ STRICT RULES FOR RESUME OPTIMIZATION:
 7. STRICT LENGTH CONSTRAINT: Do not add extra bullet points. Keep the exact same number of bullet points per role/project as the original resume.
 8. STRICT LENGTH CONSTRAINT: Keep the word count of the Summary and each bullet point nearly identical to the original. Do not write long paragraphs.
 9. Limit every bullet point to a maximum of 2 sentences.
+10. CONTACT INFO INTEGRITY: You MUST extract the exact, full URL links for LinkedIn, GitHub, Portfolios, and Email from the original resume. Do NOT shorten them or replace them with placeholder text like "LinkedIn URL".
 
 STRICT RULES FOR COVER LETTER:
 1. STRICT LENGTH CONSTRAINT: Keep it extremely short, punchy, and under 200 words. (Maximum 3 brief paragraphs).
