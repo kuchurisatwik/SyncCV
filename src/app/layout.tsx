@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Sync CV - ATS Resume Optimizer",
   description: "Optimize your resume for ATS systems and generate customized cover letters.",
   icons: {
-    icon: "/favicon.svg",
+    icon: { url: "/favicon.svg", type: "image/svg+xml" },
   },
 };
 

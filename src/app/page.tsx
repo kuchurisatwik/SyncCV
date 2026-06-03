@@ -229,7 +229,7 @@ export default function Home() {
 
         {/* Row 2: Mobile-only navigation tabs */}
         <div className="md:hidden border-t border-slate-100 dark:border-slate-800 px-2 py-1">
-          <TabsList className="flex w-full overflow-x-auto justify-start custom-scrollbar">
+          <TabsList className="flex w-full overflow-x-auto justify-start custom-scrollbar h-auto">
             <TabsTrigger value="original">Original Resume</TabsTrigger>
             <TabsTrigger value="score">ATS Score</TabsTrigger>
             <TabsTrigger value="optimized">Optimized Resume</TabsTrigger>
