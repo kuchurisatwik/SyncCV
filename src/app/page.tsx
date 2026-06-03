@@ -213,7 +213,7 @@ export default function Home() {
           </div>
 
           {/* Desktop-only nav (inline with logo) */}
-          <TabsList className="hidden md:flex overflow-x-auto justify-center custom-scrollbar shrink-0">
+          <TabsList className="hidden md:flex overflow-x-auto justify-center custom-scrollbar shrink-0 h-auto">
             <TabsTrigger value="original">Original Resume</TabsTrigger>
             <TabsTrigger value="score">ATS Score</TabsTrigger>
             <TabsTrigger value="optimized">Optimized Resume</TabsTrigger>
