@@ -121,7 +121,14 @@ export default function Home() {
     setOptimizedResume(null);
     setCoverLetter(null);
     setKeywordData(null);
-    setActiveTab("score");
+    setActiveTab("optimized");
+    
+    // Auto-scroll to results on mobile devices
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setTimeout(() => {
+        document.getElementById('results-area')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
     
     try {
       const response = await processJobApplication(apiKey, resumeText, jdText);
@@ -180,93 +187,22 @@ export default function Home() {
 
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       
+      const personName = (optimizedResume?.basics?.name || "Resume").replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
       const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
-      pdf.save(`satwik${company}.pdf`);
+      pdf.save(`${personName}${company}.pdf`);
     } catch (error: any) {
       console.error("Failed to generate PDF:", error);
       alert(`Failed to generate PDF directly: ${error.message}.`);
     }
   };
 
-  const downloadDocx = () => {
-    if (activeTab === "optimized" && optimizedResume) {
-      const data = optimizedResume;
-      let md = `**${data.basics?.name || "Name"}**\n\n`;
-      
-      const contacts = [];
-      if (data.basics?.email) contacts.push(data.basics.email);
-      if (data.basics?.phone) contacts.push(data.basics.phone);
-      if (data.basics?.location) contacts.push(data.basics.location);
-      if (data.basics?.linkedin) contacts.push(data.basics.linkedin);
-      if (data.basics?.github) contacts.push(data.basics.github);
-      
-      if (contacts.length > 0) md += `${contacts.join(" | ")}\n\n`;
-      if (data.basics?.summary) md += `**Professional Summary**\n\n${data.basics.summary}\n\n`;
-      
-      if (data.skills && data.skills.length > 0) {
-        md += `**Technical Skills**\n\n`;
-        data.skills.forEach((s: any) => {
-          md += `**${s.category}:** ${s.keywords.join(", ")}\n\n`;
-        });
-      }
-      
-      if (data.experience && data.experience.length > 0) {
-        md += `**Professional Experience**\n\n`;
-        data.experience.forEach((exp: any) => {
-          md += `**${exp.position}** | ${exp.company}\n\n`;
-          md += `${exp.startDate} - ${exp.endDate} | ${exp.location}\n\n`;
-          exp.highlights?.forEach((hl: string) => {
-            md += `- ${hl}\n\n`;
-          });
-        });
-      }
-      
-      if (data.projects && data.projects.length > 0) {
-        md += `**Projects**\n\n`;
-        data.projects.forEach((proj: any) => {
-          const tech = proj.technologies?.length > 0 ? ` | ${proj.technologies.join(", ")}` : "";
-          md += `**${proj.name}**${tech}\n\n`;
-          if (proj.description) md += `${proj.description}\n\n`;
-          proj.highlights?.forEach((hl: string) => {
-            md += `- ${hl}\n\n`;
-          });
-        });
-      }
-      
-      if (data.education && data.education.length > 0) {
-        md += `**Education**\n\n`;
-        data.education.forEach((edu: any) => {
-          md += `**${edu.studyType} in ${edu.area}**\n\n`;
-          md += `${edu.institution} | ${edu.startDate} - ${edu.endDate}\n\n`;
-        });
-      }
-
-      if (data.certifications && data.certifications.length > 0) {
-        md += `**Certifications**\n\n`;
-        data.certifications.forEach((cert: any) => {
-          md += `- **${cert.name}**, ${cert.issuer} ${cert.date ? `(${cert.date})` : ""}\n\n`;
-        });
-      }
-      
-      if (data.achievements && data.achievements.length > 0) {
-        md += `**Achievements**\n\n`;
-        data.achievements.forEach((ach: string) => {
-          md += `- ${ach}\n\n`;
-        });
-      }
-
-      const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
-      exportToDocx(md.trim(), `satwik${company}.docx`);
-    } else if (activeTab === "cover-letter" && coverLetter) {
-      const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
-      exportToDocx(coverLetter, `Cover_Letter_satwik${company}.docx`);
-    }
-  };
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 print:block print:h-auto print:bg-white">
-      <header className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center no-print">
-        <div className="flex items-center gap-2">
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 no-print">
+        {/* Row 1: Logo + Action Buttons */}
+        <div className="px-4 py-3 flex flex-row justify-between items-center">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="bg-primary text-primary-foreground p-1 rounded-md">
               <Wand2 className="w-4 h-4" />
             </div>
@@ -276,27 +212,36 @@ export default function Home() {
             </div>
           </div>
 
-        <TabsList className="hidden md:flex">
-          <TabsTrigger value="original">Original Resume</TabsTrigger>
-          <TabsTrigger value="score">ATS Score</TabsTrigger>
-          <TabsTrigger value="optimized">Optimized Resume</TabsTrigger>
-          <TabsTrigger value="cover-letter">Cover Letter</TabsTrigger>
-        </TabsList>
-        
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={downloadDocx} className="gap-2" disabled={!optimizedResume && !coverLetter}>
-            <Download className="w-4 h-4" /> DOCX
-          </Button>
-          <Button variant="default" size="sm" onClick={downloadPdf} className="gap-2" disabled={!optimizedResume && !coverLetter}>
-            <Download className="w-4 h-4" /> Print PDF
-          </Button>
+          {/* Desktop-only nav (inline with logo) */}
+          <TabsList className="hidden md:flex overflow-x-auto justify-center custom-scrollbar shrink-0">
+            <TabsTrigger value="original">Original Resume</TabsTrigger>
+            <TabsTrigger value="score">ATS Score</TabsTrigger>
+            <TabsTrigger value="optimized">Optimized Resume</TabsTrigger>
+            <TabsTrigger value="cover-letter">Cover Letter</TabsTrigger>
+          </TabsList>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="default" size="sm" onClick={downloadPdf} className="gap-1 px-2 md:px-3" disabled={!optimizedResume && !coverLetter}>
+              <Download className="w-4 h-4" /> <span className="hidden sm:inline">Print PDF</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Row 2: Mobile-only navigation tabs */}
+        <div className="md:hidden border-t border-slate-100 dark:border-slate-800 px-2 py-1">
+          <TabsList className="flex w-full overflow-x-auto justify-start custom-scrollbar">
+            <TabsTrigger value="original">Original Resume</TabsTrigger>
+            <TabsTrigger value="score">ATS Score</TabsTrigger>
+            <TabsTrigger value="optimized">Optimized Resume</TabsTrigger>
+            <TabsTrigger value="cover-letter">Cover Letter</TabsTrigger>
+          </TabsList>
         </div>
       </header>
 
-      <main className="flex-1 flex overflow-hidden print:block print:overflow-visible">
+      <main className="flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden print:block print:overflow-visible">
         {/* Left Sidebar */}
-        <aside className={`border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col no-print transition-all duration-300 ease-in-out shrink-0 ${isSidebarOpen ? 'w-[450px]' : 'w-0 opacity-0 overflow-hidden border-r-0'}`}>
-          <div className="w-[450px] h-full overflow-y-auto custom-scrollbar flex flex-col">
+        <aside className={`md:border-r border-b md:border-b-0 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col no-print transition-all duration-300 ease-in-out shrink-0 ${isSidebarOpen ? 'w-full md:w-[450px]' : 'w-0 opacity-0 overflow-hidden border-r-0 border-b-0'}`}>
+          <div className="w-full md:w-[450px] md:h-full md:overflow-y-auto custom-scrollbar flex flex-col">
             <div className="p-6 space-y-6">
             
             {/* API Key */}
@@ -355,7 +300,7 @@ export default function Home() {
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
                 placeholder="Paste the job description here..."
-                className="min-h-[200px] text-sm resize-y"
+                className="min-h-[200px] max-h-[350px] overflow-y-auto custom-scrollbar text-sm resize-y"
               />
             </div>
 
@@ -405,7 +350,7 @@ export default function Home() {
       </aside>
 
         {/* Right Content Area */}
-        <div className="flex-1 flex flex-col bg-slate-50/50 dark:bg-slate-950/50 print:block print:bg-white relative">
+        <div id="results-area" className="flex-1 flex flex-col bg-slate-50/50 dark:bg-slate-950/50 print:block print:bg-white relative min-h-[600px] md:min-h-0">
           
           {/* Floating Sidebar Toggle */}
           <Button 
@@ -499,14 +444,16 @@ export default function Home() {
               </TabsContent>
 
               <TabsContent value="optimized" className="h-full m-0 mt-0 data-[state=active]:block data-[state=inactive]:hidden print:block print:h-auto relative">
-                <div className="absolute inset-0 w-full h-full overflow-y-auto p-4 md:p-8 custom-scrollbar print:static print:h-auto print:overflow-visible print:p-0">
+                <div className="absolute inset-0 w-full h-full overflow-auto p-4 md:p-8 custom-scrollbar print:static print:h-auto print:overflow-visible print:p-0">
                   {isProcessing ? (
                     <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground min-h-[400px]">
                       <Wand2 className="w-8 h-8 animate-pulse text-primary" />
                       <p>Processing job application (this takes about 5-10s)...</p>
                     </div>
                   ) : optimizedResume ? (
-                    <ResumePreview data={optimizedResume} />
+                    <div className="min-w-max md:min-w-0 w-full">
+                      <ResumePreview data={optimizedResume} />
+                    </div>
                   ) : (
                     <div className="flex items-center justify-center h-full text-muted-foreground italic min-h-[400px]">
                       Click "Process Application" to generate.
