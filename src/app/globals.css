@@ -130,6 +130,15 @@
   }
 }
 
+@keyframes subtle-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-subtle-blink {
+  animation: subtle-blink 2s ease-in-out infinite;
+}
+
 @media print {
   @page {
     margin: 0; /* This hides the browser's default headers and footers (URL, Date, Page Numbers) */

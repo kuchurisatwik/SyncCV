@@ -37,6 +37,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("original");
+  const [hasProcessed, setHasProcessed] = useState(false);
 
   // Calculate the Post-Optimization Score dynamically
   const displayKeywordData = useMemo(() => {
@@ -118,6 +119,7 @@ export default function Home() {
     if (!validateInputs()) return;
     
     setIsProcessing(true);
+    setHasProcessed(true);
     setOptimizedResume(null);
     setCoverLetter(null);
     setKeywordData(null);
@@ -241,11 +243,11 @@ export default function Home() {
       <main className="flex-1 flex flex-col md:flex-row overflow-auto md:overflow-hidden print:block print:overflow-visible">
         {/* Left Sidebar */}
         <aside className={`md:border-r border-b md:border-b-0 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col no-print transition-all duration-300 ease-in-out shrink-0 ${isSidebarOpen ? 'w-full md:w-[450px]' : 'w-0 opacity-0 overflow-hidden border-r-0 border-b-0'}`}>
-          <div className="w-full md:w-[450px] md:h-full md:overflow-y-auto custom-scrollbar flex flex-col">
-            <div className="p-6 space-y-6">
+          <div className="w-full md:w-[450px] md:h-full flex flex-col overflow-hidden">
+            <div className="p-4 flex flex-col flex-1 gap-4 overflow-hidden">
             
             {/* API Key */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 shrink-0">
               <Label htmlFor="api-key" className="flex items-center gap-2">
                 <KeyRound className="w-4 h-4 text-muted-foreground" />
                 Gemini API Key
@@ -260,15 +262,15 @@ export default function Home() {
               />
             </div>
 
-            <Separator />
+            <Separator className="shrink-0" />
 
             {/* Resume Upload */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 shrink-0">
               <Label className="flex items-center gap-2">
                 <Upload className="w-4 h-4 text-muted-foreground" />
                 Upload Resume (PDF)
               </Label>
-              <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-4 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer relative">
+              <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-3 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer relative">
                 <Input 
                   type="file" 
                   accept=".pdf" 
@@ -276,7 +278,7 @@ export default function Home() {
                   onChange={handleFileUpload}
                 />
                 <div className="flex flex-col items-center gap-1 text-sm text-muted-foreground pointer-events-none">
-                  <FileText className="w-6 h-6 mb-1 text-slate-400" />
+                  <FileText className="w-5 h-5 text-slate-400" />
                   {resumeFile ? (
                     <span className="font-medium text-primary">{resumeFile.name}</span>
                   ) : (
@@ -290,8 +292,8 @@ export default function Home() {
             </div>
 
             {/* Job Description */}
-            <div className="space-y-2">
-              <Label htmlFor="jd" className="flex items-center gap-2">
+            <div className="space-y-1.5 flex flex-col shrink-0 md:shrink md:flex-1 md:min-h-0">
+              <Label htmlFor="jd" className="flex items-center gap-2 shrink-0">
                 <FileText className="w-4 h-4 text-muted-foreground" />
                 Job Description
               </Label>
@@ -300,12 +302,12 @@ export default function Home() {
                 value={jdText}
                 onChange={(e) => setJdText(e.target.value)}
                 placeholder="Paste the job description here..."
-                className="min-h-[200px] max-h-[350px] overflow-y-auto custom-scrollbar text-sm resize-y"
+                className="h-[200px] md:h-auto md:flex-1 min-h-[80px] overflow-y-auto custom-scrollbar text-sm resize-none"
               />
             </div>
 
             {/* Advanced Settings */}
-            <div className="space-y-2">
+            <div className="space-y-2 shrink-0">
               <button 
                 onClick={() => setIsCustomPromptOpen(!isCustomPromptOpen)}
                 className="flex items-center justify-between w-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
@@ -327,14 +329,14 @@ export default function Home() {
             </div>
 
             {error && (
-              <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm flex items-start gap-2">
+              <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm flex items-start gap-2 shrink-0">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                 <p>{error}</p>
               </div>
             )}
 
             {/* Actions */}
-            <div className="space-y-3 pt-2">
+            <div className="shrink-0 pt-1">
               <Button 
                 className="w-full font-semibold" 
                 size="lg"
@@ -379,46 +381,77 @@ export default function Home() {
                 )}
               </TabsContent>
 
-              <TabsContent value="score" className="h-full m-0 mt-0 data-[state=active]:block data-[state=inactive]:hidden print:block print:h-auto relative">
-                <div className="absolute inset-0 w-full h-full overflow-y-auto p-4 md:p-8 custom-scrollbar grid grid-cols-1 md:grid-cols-3 gap-6 items-start print:static print:h-auto print:overflow-visible print:p-0">
+              <TabsContent value="score" className="h-full m-0 mt-0 data-[state=active]:flex data-[state=inactive]:hidden flex-col print:block print:h-auto">
+                <div className="flex-1 overflow-y-auto px-4 pt-2 md:px-8 md:pt-3 custom-scrollbar print:overflow-visible print:p-0">
+                  <div className="flex flex-col gap-6 pb-8">
                   
-                  <Card className="md:col-span-1">
-                    <CardHeader>
-                      <CardTitle>{displayKeywordData?.isOptimizedScore ? "Optimized ATS Score" : "Original ATS Score"}</CardTitle>
-                      <CardDescription>{displayKeywordData?.isOptimizedScore ? "Score after AI integration" : "Based on Job Description"}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center justify-center py-6">
-                      <div className="relative w-32 h-32 flex items-center justify-center rounded-full border-8 border-slate-100 dark:border-slate-800">
-                        {displayKeywordData ? (
-                          <div className="text-4xl font-bold text-primary">
-                            {displayKeywordData.matchPercentage}%
-                          </div>
-                        ) : (
-                          <div className="text-muted-foreground text-sm">N/A</div>
-                        )}
-                        <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="8" 
-                            className="text-primary transition-all duration-1000 ease-out" 
-                            strokeDasharray={`${displayKeywordData ? (displayKeywordData.matchPercentage / 100) * 289 : 0} 289`}
-                          />
-                        </svg>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="md:col-span-2">
+                  {/* Score Circles Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Original ATS Score */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Original ATS Score</CardTitle>
+                        <CardDescription>Before optimization</CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex flex-col items-center justify-center py-4">
+                        <div className="relative w-28 h-28 flex items-center justify-center rounded-full border-8 border-slate-100 dark:border-slate-800">
+                          {keywordData ? (
+                            <div className="text-3xl font-bold text-rose-500">
+                              {keywordData.matchPercentage}%
+                            </div>
+                          ) : (
+                            <div className="text-muted-foreground text-sm">N/A</div>
+                          )}
+                          <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="8" 
+                              className="text-rose-400 transition-all duration-1000 ease-out" 
+                              strokeDasharray={`${keywordData ? (keywordData.matchPercentage / 100) * 289 : 0} 289`}
+                            />
+                          </svg>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Optimized ATS Score */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Optimized ATS Score</CardTitle>
+                        <CardDescription>After AI optimization</CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex flex-col items-center justify-center py-4">
+                        <div className="relative w-28 h-28 flex items-center justify-center rounded-full border-8 border-slate-100 dark:border-slate-800">
+                          {displayKeywordData?.isOptimizedScore ? (
+                            <div className="text-3xl font-bold text-emerald-500">
+                              {displayKeywordData.matchPercentage}%
+                            </div>
+                          ) : (
+                            <div className="text-muted-foreground text-sm">N/A</div>
+                          )}
+                          <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="8" 
+                              className="text-emerald-400 transition-all duration-1000 ease-out" 
+                              strokeDasharray={`${displayKeywordData?.isOptimizedScore ? (displayKeywordData.matchPercentage / 100) * 289 : 0} 289`}
+                            />
+                          </svg>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Keyword Analysis */}
+                  <Card>
                     <CardHeader>
                       <CardTitle>Keyword Analysis</CardTitle>
                       <CardDescription>Keywords found and missing from your resume</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <div>
                           <h4 className="font-medium text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4" /> Found Keywords
                           </h4>
                           <div className="flex flex-wrap gap-2">
-                            {displayKeywordData?.matchedKeywords?.map(kw => (
+                            {keywordData?.matchedKeywords?.map(kw => (
                               <span key={kw} className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs rounded-full font-medium">
                                 {kw}
                               </span>
@@ -427,19 +460,38 @@ export default function Home() {
                         </div>
                         <div>
                           <h4 className="font-medium text-rose-600 dark:text-rose-400 mb-3 flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4" /> Missing Keywords
+                            <AlertCircle className="w-4 h-4" /> Originally Missing
                           </h4>
                           <div className="flex flex-wrap gap-2">
-                            {displayKeywordData?.missingKeywords?.map(kw => (
+                            {keywordData?.missingKeywords?.map(kw => (
                               <span key={kw} className="px-2.5 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 text-xs rounded-full font-medium">
                                 {kw}
                               </span>
                             )) || <span className="text-sm text-muted-foreground">Run optimization to analyze keywords.</span>}
                           </div>
                         </div>
+                        <div>
+                          <h4 className="font-medium text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" /> Still Missing
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {displayKeywordData?.isOptimizedScore ? (
+                              displayKeywordData.missingKeywords.length > 0 ? (
+                                displayKeywordData.missingKeywords.map(kw => (
+                                  <span key={kw} className="px-2.5 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-full font-medium">
+                                    {kw}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">All keywords covered! ✓</span>
+                              )
+                            ) : <span className="text-sm text-muted-foreground">Run optimization to see results.</span>}
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
+                  </div>
                 </div>
               </TabsContent>
 
@@ -449,6 +501,7 @@ export default function Home() {
                     <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground min-h-[400px]">
                       <Wand2 className="w-8 h-8 animate-pulse text-primary" />
                       <p>Processing job application (this takes about 5-10s)...</p>
+                      <p className="text-sm animate-subtle-blink">Retry, If response is not better</p>
                     </div>
                   ) : optimizedResume ? (
                     <div className="min-w-max md:min-w-0 w-full">
@@ -468,6 +521,7 @@ export default function Home() {
                     <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground min-h-[400px]">
                       <Wand2 className="w-8 h-8 animate-pulse text-primary" />
                       <p>Processing job application (this takes about 5-10s)...</p>
+                      <p className="text-sm animate-subtle-blink">Retry, If response is not better</p>
                     </div>
                   ) : coverLetter ? (
                     <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-10 shadow-sm print:shadow-none print:border-none print:p-0">
