@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Settings, Upload, FileText, CheckCircle2, Download, AlertCircle, Wand2, KeyRound, ChevronLeft, ChevronRight } from "lucide-react";
+import { Settings, Upload, FileText, CheckCircle2, Download, AlertCircle, Wand2, KeyRound, ChevronLeft, ChevronRight, Sun, Moon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import { extractTextFromPDF } from "@/lib/pdf";
@@ -38,6 +38,22 @@ export default function Home() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("original");
   const [hasProcessed, setHasProcessed] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const dark = saved ? saved === "dark" : prefersDark;
+    setIsDark(dark);
+    document.documentElement.classList.toggle("dark", dark);
+  }, []);
+
+  const toggleDarkMode = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  };
 
   // Calculate the Post-Optimization Score dynamically
   const displayKeywordData = useMemo(() => {
@@ -223,6 +239,9 @@ export default function Home() {
           </TabsList>
 
           <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={toggleDarkMode} aria-label="Toggle dark mode">
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
             <Button variant="default" size="sm" onClick={downloadPdf} className="gap-1 px-2 md:px-3" disabled={!optimizedResume && !coverLetter}>
               <Download className="w-4 h-4" /> <span className="hidden sm:inline">Print PDF</span>
             </Button>
