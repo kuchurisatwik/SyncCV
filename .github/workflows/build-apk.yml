@@ -40,6 +40,35 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
+      - name: Generate launcher icons from SVG
+        run: |
+          # Android adaptive icon sizes: mdpi=48, hdpi=72, xhdpi=96, xxhdpi=144, xxxhdpi=192
+          # Foreground layer for adaptive icons: mdpi=108, hdpi=162, xhdpi=216, xxhdpi=324, xxxhdpi=432
+          declare -A SIZES=( [mdpi]=48 [hdpi]=72 [xhdpi]=96 [xxhdpi]=144 [xxxhdpi]=192 )
+          declare -A FG_SIZES=( [mdpi]=108 [hdpi]=162 [xhdpi]=216 [xxhdpi]=324 [xxxhdpi]=432 )
+
+          for density in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            RES_DIR="android/app/src/main/res/mipmap-${density}"
+            mkdir -p "$RES_DIR"
+
+            # Standard launcher icon
+            convert -background none -density 300 resources/icon.svg -resize "${SIZES[$density]}x${SIZES[$density]}" "$RES_DIR/ic_launcher.png"
+
+            # Round launcher icon
+            SIZE=${SIZES[$density]}
+            convert -background none -density 300 resources/icon.svg -resize "${SIZE}x${SIZE}" \
+              \( +clone -threshold -1 -negate -fill white -draw "circle $((SIZE/2)),$((SIZE/2)) $((SIZE/2)),0" \) \
+              -alpha off -compose copy_opacity -composite "$RES_DIR/ic_launcher_round.png"
+
+            # Foreground layer for adaptive icons
+            convert -background none -density 300 resources/icon.svg -resize "${FG_SIZES[$density]}x${FG_SIZES[$density]}" "$RES_DIR/ic_launcher_foreground.png"
+          done
+
+          echo "✅ Launcher icons generated for all densities"
+
       - name: Make Gradlew executable
         run: chmod +x android/gradlew
 
