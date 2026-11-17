@@ -8,14 +8,17 @@ Your task is to analyze the Job Description against the Candidate Resume, and ge
 STRICT RULES FOR RESUME OPTIMIZATION:
 1. Do not invent entirely new jobs or companies, but you MAY aggressively adjust the technologies, skills, and descriptions to match the Job Description.
 2. AGGRESSIVE KEYWORD MATCHING: You MUST extract all missing keywords from the Job Description and seamlessly weave them into the Skills, Experience, and Projects sections.
-3. SKILL ENHANCEMENT: Preserve the candidate's existing core skills. Append the missing keywords from the Job Description to the relevant skill categories rather than deleting the original skillset entirely.
-4. DO NOT DELETE CONTENT: You must return the exact same number of projects, jobs, education entries, and achievements as the original resume. Never drop a section.
-5. Never change company names or job titles, but you may reframe project descriptions to highlight JD requirements.
-6. Never modify numerical achievements or metrics. Keep dates unchanged.
-7. STRICT LENGTH CONSTRAINT: Do not add extra bullet points. Keep the exact same number of bullet points per role/project as the original resume.
-8. STRICT LENGTH CONSTRAINT: Keep the word count of the Summary and each bullet point nearly identical to the original. Do not write long paragraphs.
-9. Limit every bullet point to a maximum of 2 sentences.
-10. CONTACT INFO INTEGRITY: You MUST extract the exact, full URL links for LinkedIn, GitHub, Portfolios, and Email from the original resume. Do NOT shorten them or replace them with placeholder text like "LinkedIn URL".
+3. SKILL ENHANCEMENT: Preserve the candidate's existing core skills. Append the missing keywords from the Job Description to the relevant skill categories rather than deleting the original skillset. Organize skills into 4-6 clearly labeled categories.
+4. HEADLINE: Generate "basics.headline" as a short, pipe-separated professional title tailored to the target role: exactly 3 segments, under 9 words total (e.g., "DevOps Engineer | AWS Cloud | CI/CD & Infrastructure as Code"). Base it on the candidate's real role and the top Job Description keywords.
+5. PRESERVE EVERYTHING — THIS IS THE MOST IMPORTANT RULE: The optimized resume MUST mirror the original resume's structure and length EXACTLY. Output the SAME number of experience entries, projects, education entries, certifications, and achievements as the original, AND the SAME number of bullet points inside every single job and project. NEVER drop, merge, summarize away, or omit any role, project, achievement, certification, or bullet — not even to save space or to fit a page. The finished resume must be the same length as the uploaded resume.
+6. Never change company names or job titles. Never modify numerical metrics. Keep all dates unchanged.
+7. CONTACT INFO INTEGRITY: Extract the exact, full URL links for LinkedIn, GitHub, Portfolio, and Email from the original resume. Do NOT shorten them or replace them with placeholders like "LinkedIn URL". For "projects[].url", include a real project link ONLY if present in the original resume; otherwise omit the field. Never fabricate URLs.
+
+STRICT RULES FOR LENGTH (match the uploaded resume's length — do NOT shorten it):
+8. Do NOT cut, compress, trim, or shorten the resume to fit a page. The original already fits on one page, so a faithful rewrite of the same length fits too. Your job is to REWORD for keywords, not to remove anything.
+9. Keep the summary about the same length as the original summary. Keep each rewritten bullet about the same length (one concise sentence) as the original bullet it replaces.
+10. KEYWORD WEAVING WITHOUT LENGTH CHANGE: Rewrite the existing bullets and summary to naturally include Job Description keywords, but keep the SAME number of bullets per job and per project as the original. For each project, also provide a "technologies" list of 3-6 items taken from that real project. Do NOT invent fake metrics, outcomes, or technologies the candidate did not use.
+11. The counts of sections, entries, and bullets in your output MUST equal the original resume. Only wording may change; quantity may not.
 
 STRICT RULES FOR COVER LETTER:
 1. STRICT LENGTH CONSTRAINT: Keep it extremely short, punchy, and under 200 words. (Maximum 3 brief paragraphs).
@@ -38,13 +41,14 @@ Return the complete analysis, optimized resume, and cover letter strictly as a J
   "optimizedResume": {
     "basics": {
       "name": "Full Name",
+      "headline": "Role | Focus Area | Specialty",
       "email": "email@address.com",
       "phone": "Phone Number",
       "location": "City, State",
       "linkedin": "LinkedIn URL",
       "github": "GitHub URL",
       "portfolio": "Portfolio URL",
-      "summary": "Optimized professional summary."
+      "summary": "Optimized professional summary (2-3 lines)."
     },
     "skills": [
       {
@@ -68,9 +72,10 @@ Return the complete analysis, optimized resume, and cover letter strictly as a J
     "projects": [
       {
         "name": "Project Name",
-        "description": "Short description if applicable",
-        "technologies": ["Tech 1", "Tech 2"],
-        "highlights": ["Optimized project bullet 1."]
+        "url": "Project/GitHub URL (omit entirely if not in the original resume)",
+        "description": "Optional one-line descriptor",
+        "technologies": ["Tech 1", "Tech 2", "Tech 3"],
+        "highlights": ["Informative project bullet 1.", "Informative project bullet 2."]
       }
     ],
     "education": [

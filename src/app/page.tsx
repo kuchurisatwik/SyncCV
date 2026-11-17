@@ -184,15 +184,19 @@ export default function Home() {
       // Add a slight delay to ensure fonts/layout are fully rendered
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const rect = element.getBoundingClientRect();
+      // A4 at 96 CSS DPI -> the capture always has the exact A4 aspect ratio (no stretching).
+      const A4_WIDTH_PX = 794;   // 210mm
+      const A4_HEIGHT_PX = 1123; // 297mm
       
       const imgData = await htmlToImage.toJpeg(element, {
         quality: 0.95,
         pixelRatio: 2,
         backgroundColor: "#ffffff",
-        width: rect.width,
-        height: rect.height,
+        width: A4_WIDTH_PX,
+        height: A4_HEIGHT_PX,
         style: {
+          width: `${A4_WIDTH_PX}px`,
+          height: `${A4_HEIGHT_PX}px`,
           margin: '0',
           transform: 'none',
         }
