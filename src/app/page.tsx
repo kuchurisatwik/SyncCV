@@ -10,13 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Settings, Upload, FileText, CheckCircle2, Download, AlertCircle, Wand2, KeyRound, ChevronLeft, ChevronRight, Sun, Moon } from "lucide-react";
+import { Settings, Upload, FileText, CheckCircle2, Download, AlertCircle, Wand2, KeyRound, ChevronLeft, ChevronRight, Sun, Moon, Copy, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import { extractTextFromPDF } from "@/lib/pdf";
 import { exportToDocx } from "@/lib/docx";
 import { processJobApplication } from "@/lib/gemini";
 import { ResumePreview } from "@/components/ResumePreview";
+import { ZoomableResume } from "@/components/ZoomableResume";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
@@ -39,6 +40,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("original");
   const [hasProcessed, setHasProcessed] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [coverLetterCopied, setCoverLetterCopied] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
@@ -163,9 +165,111 @@ export default function Home() {
     }
   };
 
+  const handleCopyCoverLetter = async () => {
+    if (!coverLetter) return;
+    const plainText = coverLetter
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/^#+\s*/gm, '')
+      .replace(/^>\s*/gm, '')
+      .replace(/`/g, '')
+      .trim();
+
+    const markCopied = () => {
+      setCoverLetterCopied(true);
+      setTimeout(() => setCoverLetterCopied(false), 2000);
+    };
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(plainText);
+        markCopied();
+        return;
+      }
+      throw new Error("Clipboard API unavailable");
+    } catch {
+      // Fallback for non-secure contexts or older browsers
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = plainText;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        markCopied();
+      } catch {
+        alert("Could not copy to clipboard. Please select and copy the text manually.");
+      }
+    }
+  };
+
+  const downloadCoverLetterPdf = async () => {
+    if (!coverLetter) {
+      alert("Please generate the Cover Letter first before downloading.");
+      return;
+    }
+
+    try {
+      const jspdfModule = await import('jspdf');
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const marginX = 20;   // mm
+      const marginY = 22;   // mm
+      const pageHeight = 297;
+      const maxWidth = 210 - marginX * 2;
+      const lineHeight = 6; // mm
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(11);
+
+      const stripMarkdown = (s: string) =>
+        s.replace(/\*\*(.*?)\*\*/g, '$1')
+         .replace(/\*(.*?)\*/g, '$1')
+         .replace(/^#+\s*/gm, '')
+         .replace(/^>\s*/gm, '')
+         .replace(/`/g, '');
+
+      let y = marginY;
+      const paragraphs = coverLetter.replace(/\r\n/g, '\n').split(/\n{2,}/);
+
+      paragraphs.forEach((para) => {
+        stripMarkdown(para).split('\n').forEach((raw) => {
+          const text = raw.trim();
+          if (!text) return;
+          const wrapped = pdf.splitTextToSize(text, maxWidth) as string[];
+          wrapped.forEach((line) => {
+            if (y > pageHeight - marginY) {
+              pdf.addPage();
+              y = marginY;
+            }
+            pdf.text(line, marginX, y);
+            y += lineHeight;
+          });
+        });
+        y += lineHeight * 0.7; // extra spacing between paragraphs
+      });
+
+      const personName = (optimizedResume?.basics?.name || "Cover_Letter").replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
+      const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+      pdf.save(`${personName}${company}_Cover_Letter.pdf`);
+    } catch (error: any) {
+      console.error("Failed to generate cover letter PDF:", error);
+      alert(`Failed to generate cover letter PDF: ${error.message}.`);
+    }
+  };
+
   const downloadPdf = async () => {
+    if (activeTab === "cover-letter") {
+      await downloadCoverLetterPdf();
+      return;
+    }
+
     if (activeTab !== "optimized") {
-      alert("Please generate the Optimized Resume first before downloading.");
+      alert("Open the Optimized Resume or Cover Letter tab to download.");
       return;
     }
 
@@ -519,23 +623,21 @@ export default function Home() {
               </TabsContent>
 
               <TabsContent value="optimized" className="h-full m-0 mt-0 data-[state=active]:block data-[state=inactive]:hidden print:block print:h-auto relative">
-                <div className="absolute inset-0 w-full h-full overflow-auto p-4 md:p-8 custom-scrollbar print:static print:h-auto print:overflow-visible print:p-0">
-                  {isProcessing ? (
-                    <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground min-h-[400px]">
-                      <Wand2 className="w-8 h-8 animate-pulse text-primary" />
-                      <p>Processing job application (this takes about 5-10s)...</p>
-                      <p className="text-sm animate-subtle-blink">Retry, If response is not better</p>
-                    </div>
-                  ) : optimizedResume ? (
-                    <div className="min-w-max md:min-w-0 w-full">
-                      <ResumePreview data={optimizedResume} />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground italic min-h-[400px]">
-                      Click "Process Application" to generate.
-                    </div>
-                  )}
-                </div>
+                {isProcessing ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-muted-foreground">
+                    <Wand2 className="w-8 h-8 animate-pulse text-primary" />
+                    <p>Processing job application (this takes about 5-10s)...</p>
+                    <p className="text-sm animate-subtle-blink">Retry, If response is not better</p>
+                  </div>
+                ) : optimizedResume ? (
+                  <ZoomableResume>
+                    <ResumePreview data={optimizedResume} />
+                  </ZoomableResume>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground italic">
+                    Click "Process Application" to generate.
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="cover-letter" className="h-full m-0 mt-0 data-[state=active]:block data-[state=inactive]:hidden print:block print:h-auto relative">
@@ -547,11 +649,19 @@ export default function Home() {
                       <p className="text-sm animate-subtle-blink">Retry, If response is not better</p>
                     </div>
                   ) : coverLetter ? (
-                    <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-10 shadow-sm print:shadow-none print:border-none print:p-0">
-                      <div className="prose dark:prose-invert prose-slate max-w-none prose-p:leading-relaxed prose-headings:font-semibold">
-                        <ReactMarkdown>
-                          {coverLetter}
-                        </ReactMarkdown>
+                    <div className="max-w-3xl mx-auto">
+                      <div className="flex justify-end mb-2 no-print">
+                        <Button variant="outline" size="sm" onClick={handleCopyCoverLetter} className="gap-1.5 h-8">
+                          {coverLetterCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          {coverLetterCopied ? "Copied!" : "Copy"}
+                        </Button>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-10 shadow-sm print:shadow-none print:border-none print:p-0">
+                        <div className="prose dark:prose-invert prose-slate max-w-none prose-p:leading-relaxed prose-headings:font-semibold">
+                          <ReactMarkdown>
+                            {coverLetter}
+                          </ReactMarkdown>
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -574,6 +684,7 @@ export default function Home() {
           .no-print { display: none !important; }
           .print-area { display: block !important; padding: 0 !important; overflow: visible !important; }
           .prose { max-width: 100% !important; }
+          .resume-zoom-sizer, .resume-zoom-layer { transform: none !important; width: auto !important; height: auto !important; }
         }
       `}} />
     </Tabs>
