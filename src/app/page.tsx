@@ -279,19 +279,30 @@ export default function Home() {
       return;
     }
 
+    // The preview may be visually zoomed (transform: scale on an ancestor). html-to-image
+    // can clip or blank out elements rendered under a transform, so neutralize the zoom for
+    // the capture and restore it afterwards.
+    const zoomLayer = element.closest<HTMLElement>('.resume-zoom-layer');
+    const previousTransform = zoomLayer ? zoomLayer.style.transform : null;
+
     try {
       const htmlToImage = await import('html-to-image');
-      
+
       const jspdfModule = await import('jspdf');
       const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
 
-      // Add a slight delay to ensure fonts/layout are fully rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
+      if (zoomLayer) zoomLayer.style.transform = 'none';
+
+      // Make sure web fonts are loaded, then let layout settle, so the capture isn't blank.
+      if (document.fonts?.ready) {
+        try { await document.fonts.ready; } catch { /* ignore */ }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // A4 at 96 CSS DPI -> the capture always has the exact A4 aspect ratio (no stretching).
       const A4_WIDTH_PX = 794;   // 210mm
       const A4_HEIGHT_PX = 1123; // 297mm
-      
+
       const imgData = await htmlToImage.toJpeg(element, {
         quality: 0.95,
         pixelRatio: 2,
@@ -303,22 +314,27 @@ export default function Home() {
           height: `${A4_HEIGHT_PX}px`,
           margin: '0',
           transform: 'none',
-        }
+        },
       });
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
       });
 
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
-      
+
       const personName = (optimizedResume?.basics?.name || "Resume").replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
       const company = displayKeywordData?.companyName ? `_${displayKeywordData.companyName.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
       pdf.save(`${personName}${company}.pdf`);
     } catch (error: any) {
       console.error("Failed to generate PDF:", error);
       alert(`Failed to generate PDF directly: ${error.message}.`);
+    } finally {
+      if (zoomLayer && previousTransform !== null) {
+        zoomLayer.style.transform = previousTransform;
+      }
     }
   };
 
