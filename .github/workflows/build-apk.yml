@@ -20,7 +20,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        # Use `npm install` (not `npm ci`): the committed lock file can omit
+        # Linux-only optional deps (e.g. @emnapi/*) when it is generated on
+        # Windows, which makes the strict `npm ci` fail on the Linux runner.
+        run: npm install
 
       - name: Build Next.js static export
         run: npm run build
