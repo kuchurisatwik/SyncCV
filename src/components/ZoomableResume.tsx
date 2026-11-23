@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 
@@ -12,13 +12,14 @@ const clampZoom = (z: number) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
 const round2 = (z: number) => Math.round(z * 100) / 100;
 
 /**
- * Wraps an A4-sized preview and provides zoom controls:
- * - on-screen +/- buttons (click the % to reset to 100%)
- * - Ctrl + wheel / trackpad pinch
- * - two-finger pinch on touch screens
+ * Wraps an A4-sized preview and provides zoom:
+ * - defaults to "fit to width" so the page fills the viewport (no wasted side
+ *   space on phones, and no overflow), never upscaling past 100%
+ * - on-screen +/- buttons (click the % to re-fit to width)
+ * - Ctrl + wheel / trackpad pinch, and two-finger pinch on touch screens
  *
- * Zoom is a view-only transform; it never changes the underlying element,
- * so the PDF export (which captures the inner element at exact A4) is unaffected.
+ * Zoom is a view-only transform; the underlying element is untouched, so the
+ * PDF export (captured at exact A4) is unaffected.
  */
 export function ZoomableResume({
   children,
@@ -34,14 +35,41 @@ export function ZoomableResume({
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
+  const userAdjustedRef = useRef(false);
 
+  // Scale the page to fit the viewport width (never upscaled beyond 100%).
+  const fitToWidth = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const styles = getComputedStyle(el);
+    const padX = (parseFloat(styles.paddingLeft) || 0) + (parseFloat(styles.paddingRight) || 0);
+    const avail = el.clientWidth - padX;
+    if (avail <= 0) return;
+    setZoom(clampZoom(round2(Math.min(avail / baseWidthPx, 1))));
+  }, [baseWidthPx]);
+
+  // Fit on first render and on viewport resize, until the user zooms manually.
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onResize = () => {
+      if (!userAdjustedRef.current) fitToWidth();
+    };
+    onResize();
+    const ro = new ResizeObserver(onResize);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [fitToWidth]);
+
+  // Ctrl + wheel / trackpad pinch, and two-finger touch pinch.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey) return; // trackpad pinch or Ctrl + wheel
+      if (!e.ctrlKey) return;
       e.preventDefault();
+      userAdjustedRef.current = true;
       const delta = Math.max(-0.2, Math.min(0.2, -e.deltaY * 0.01));
       setZoom((z) => clampZoom(round2(z + delta)));
     };
@@ -61,6 +89,7 @@ export function ZoomableResume({
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 2 && pinchRef.current) {
         e.preventDefault();
+        userAdjustedRef.current = true;
         const ratio = distance(e.touches) / pinchRef.current.startDist;
         setZoom(clampZoom(round2(pinchRef.current.startZoom * ratio)));
       }
@@ -82,6 +111,16 @@ export function ZoomableResume({
       el.removeEventListener("touchend", onTouchEnd);
     };
   }, []);
+
+  const adjustZoom = (next: number) => {
+    userAdjustedRef.current = true;
+    setZoom(clampZoom(round2(next)));
+  };
+
+  const resetToFit = () => {
+    userAdjustedRef.current = false;
+    fitToWidth();
+  };
 
   return (
     <>
@@ -114,16 +153,16 @@ export function ZoomableResume({
           variant="ghost"
           size="icon"
           className="h-7 w-7 rounded-full"
-          onClick={() => setZoom((z) => clampZoom(round2(z - ZOOM_STEP)))}
+          onClick={() => adjustZoom(zoomRef.current - ZOOM_STEP)}
           aria-label="Zoom out"
           title="Zoom out"
         >
           <Minus className="w-4 h-4" />
         </Button>
         <button
-          onClick={() => setZoom(1)}
+          onClick={resetToFit}
           className="text-xs font-medium tabular-nums w-11 text-center text-slate-600 dark:text-slate-300 hover:text-primary"
-          title="Reset to 100%"
+          title="Fit to width"
         >
           {Math.round(zoom * 100)}%
         </button>
@@ -131,7 +170,7 @@ export function ZoomableResume({
           variant="ghost"
           size="icon"
           className="h-7 w-7 rounded-full"
-          onClick={() => setZoom((z) => clampZoom(round2(z + ZOOM_STEP)))}
+          onClick={() => adjustZoom(zoomRef.current + ZOOM_STEP)}
           aria-label="Zoom in"
           title="Zoom in"
         >
