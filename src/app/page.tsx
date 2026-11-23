@@ -106,14 +106,20 @@ export default function Home() {
     setResumeFile(file);
     const objectUrl = URL.createObjectURL(file);
     setResumePdfUrl(objectUrl);
-    
+    setError("");
+    setResumeText("");
+
     try {
       const text = await extractTextFromPDF(file);
+      if (!text || text.trim().length < 20) {
+        setError("We couldn't read any text from this PDF. It looks like a scanned or image-only file — please upload a text-based PDF.");
+        return;
+      }
       setResumeText(text);
       setActiveTab("original");
     } catch (err) {
       console.error("Failed to parse PDF:", err);
-      setError("Could not parse the uploaded PDF file. Please ensure it's a valid PDF containing text.");
+      setError("Could not read the uploaded PDF. Please ensure it's a valid, text-based PDF and try again.");
     }
   };
 

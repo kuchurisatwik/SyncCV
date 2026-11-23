@@ -24,24 +24,36 @@ function blobToBase64(blob: Blob): Promise<string> {
 export async function saveFile(blob: Blob, fileName: string): Promise<void> {
   if (Capacitor.isNativePlatform()) {
     const { Filesystem, Directory } = await import('@capacitor/filesystem');
-    const { Share } = await import('@capacitor/share');
-
     const base64 = await blobToBase64(blob);
-    const written = await Filesystem.writeFile({
+
+    // Write to the cache so the file can be shared via the native share sheet.
+    const cached = await Filesystem.writeFile({
       path: fileName,
       data: base64,
       directory: Directory.Cache,
     });
 
     try {
+      const { Share } = await import('@capacitor/share');
       await Share.share({
         title: fileName,
-        files: [written.uri],
-        dialogTitle: 'Save or share',
+        files: [cached.uri],
+        dialogTitle: 'Save or share your document',
       });
     } catch (err) {
-      // User dismissed the share sheet — that is not an error.
-      console.warn('Share cancelled or unavailable:', err);
+      // Share unavailable or dismissed: keep a permanent copy the user can find.
+      console.warn('Share unavailable, saving to Documents instead:', err);
+      try {
+        const saved = await Filesystem.writeFile({
+          path: fileName,
+          data: base64,
+          directory: Directory.Documents,
+        });
+        alert(`Saved to your device:\n${saved.uri}`);
+      } catch (e2) {
+        console.error('Failed to save file:', e2);
+        alert('Could not save the file on this device.');
+      }
     }
     return;
   }

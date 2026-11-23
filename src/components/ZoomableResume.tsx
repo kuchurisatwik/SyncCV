@@ -22,12 +22,12 @@ const round2 = (z: number) => Math.round(z * 100) / 100;
  */
 export function ZoomableResume({
   children,
-  baseWidthMm = 210,
-  baseHeightMm = 297,
+  baseWidthPx = 794,
+  baseHeightPx = 1123,
 }: {
   children: React.ReactNode;
-  baseWidthMm?: number;
-  baseHeightMm?: number;
+  baseWidthPx?: number;
+  baseHeightPx?: number;
 }) {
   const [zoom, setZoom] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -92,15 +92,15 @@ export function ZoomableResume({
       >
         <div
           className="resume-zoom-sizer mx-auto"
-          style={{ width: `calc(${baseWidthMm}mm * ${zoom})`, height: `calc(${baseHeightMm}mm * ${zoom})` }}
+          style={{ width: `calc(${baseWidthPx}px * ${zoom})`, height: `calc(${baseHeightPx}px * ${zoom})` }}
         >
           <div
             className="resume-zoom-layer"
             style={{
               transform: `scale(${zoom})`,
               transformOrigin: "top left",
-              width: `${baseWidthMm}mm`,
-              height: `${baseHeightMm}mm`,
+              width: `${baseWidthPx}px`,
+              height: `${baseHeightPx}px`,
             }}
           >
             {children}

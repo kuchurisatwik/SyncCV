@@ -114,7 +114,7 @@ export function ResumePreview({ data }: { data: ResumeData }) {
   ].filter(Boolean);
 
   return (
-    <div id="resume-preview-content" className="bg-white text-black px-[13mm] py-[12mm] font-sans w-[210mm] h-[297mm] overflow-hidden flex flex-col mx-auto shadow-md border border-slate-200 text-[12px] leading-[1.45] print:shadow-none print:border-0">
+    <div id="resume-preview-content" className="bg-white text-black px-[49px] py-[45px] font-sans w-[794px] h-[1123px] overflow-hidden flex flex-col mx-auto shadow-md border border-slate-200 text-[12px] leading-[1.45] print:shadow-none print:border-0">
       <div ref={areaRef} className="flex-1 min-h-0 overflow-hidden">
         <div ref={contentRef} style={{ transform: `scale(${scale})`, transformOrigin: "top center" }}>
           {/* Header */}
