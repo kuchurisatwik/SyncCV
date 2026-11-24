@@ -139,6 +139,15 @@
   animation: subtle-blink 2s ease-in-out infinite;
 }
 
+/* Hide scrollbars app-wide while keeping every element scrollable (swipe/drag/wheel). */
+* {
+  -ms-overflow-style: none; /* IE and legacy Edge */
+  scrollbar-width: none; /* Firefox */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera, Android WebView */
+}
+
 @media print {
   @page {
     margin: 0; /* This hides the browser's default headers and footers (URL, Date, Page Numbers) */
