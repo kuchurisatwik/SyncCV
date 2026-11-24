@@ -3,7 +3,7 @@ import { ContactList, getContacts, ResumeBody, type ResumeData, type TemplatePro
 // Minimal: clean, left-aligned, grayscale with light hairline rules. Narrow side
 // margins (matching Executive) and readable headings so it reads solid, not sparse.
 const theme: Theme = {
-  root: "px-[44px] py-[46px] font-sans text-[12px] leading-[1.5] text-slate-800",
+  root: "px-[44px] py-[46px] text-[12px] leading-[1.5] text-slate-800",
   section: "mb-3",
   heading: "text-[12px] font-semibold uppercase tracking-[0.14em] text-slate-500 border-b border-slate-200 pb-0.5 mb-1.5",
   itemTitle: "font-semibold text-slate-900",

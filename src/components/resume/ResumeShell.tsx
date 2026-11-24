@@ -2,6 +2,8 @@
 
 import React, { useLayoutEffect, useRef, useState } from "react";
 
+import { RESUME_SANS } from "./shared";
+
 const PAGE_W = 794; // 210mm @ 96dpi
 const PAGE_H = 1123; // 297mm @ 96dpi
 const MIN_SCALE = 0.5;
@@ -67,7 +69,7 @@ export function ResumeShell({ children }: { children: React.ReactNode }) {
   }, [children]);
 
   return (
-    <div className="mx-auto" style={{ width: PAGE_W }}>
+    <div className="mx-auto" style={{ width: PAGE_W, fontFamily: RESUME_SANS }}>
       {/* Off-screen measurer (never captured by the PDF export). */}
       <div
         ref={measureRef}

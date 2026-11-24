@@ -1,5 +1,9 @@
 import React from "react";
 
+/** Font stack for the resume body — the same families the PDF export renders
+ *  via jsPDF's Helvetica — so the on-screen preview matches the downloaded PDF. */
+export const RESUME_SANS = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
+
 export interface ResumeData {
   basics: {
     name: string;
@@ -250,7 +254,7 @@ export function ResumeBody({ data, theme }: { data: ResumeData; theme: Theme }) 
 /** Classic layout shared as the base for every template (same margins + structure). */
 export function makeClassicTheme(overrides: Partial<Theme> = {}): Theme {
   return {
-    root: "px-[44px] py-[46px] font-sans text-[12px] leading-[1.45] text-black",
+    root: "px-[44px] py-[46px] text-[12px] leading-[1.45] text-black",
     section: "mb-3",
     heading: "text-[12px] font-bold uppercase tracking-wide border-b border-slate-400 pb-0.5 mb-1.5",
     itemTitle: "font-bold",

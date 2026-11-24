@@ -4,7 +4,7 @@ const ACCENT = "#1e3a8a"; // navy
 
 // Modern: left-aligned name over a navy rule, navy section headings. Balanced margins.
 const theme: Theme = {
-  root: "px-[44px] py-[44px] font-sans text-[12px] leading-[1.5] text-slate-800",
+  root: "px-[44px] py-[44px] text-[12px] leading-[1.5] text-slate-800",
   section: "mb-3",
   heading: "text-[12px] font-bold uppercase tracking-wider text-[#1e3a8a] border-b-2 border-blue-200 pb-0.5 mb-1.5",
   itemTitle: "font-bold text-slate-900",

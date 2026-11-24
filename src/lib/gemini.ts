@@ -105,6 +105,19 @@ Return the complete analysis, optimized resume, and cover letter strictly as a J
 Do not explain. Return only the raw JSON.
 `;
 
+/**
+ * "Thinking" (hidden reasoning) is the main source of latency on Flash models.
+ * The control differs by generation: Gemini 2.5 uses thinkingBudget (0 = off);
+ * Gemini 3.x uses thinkingLevel ("low" minimizes it — thinkingBudget is ignored
+ * there). Newer/unknown generations get no thinking field (setting an
+ * unsupported one returns a 400, which just falls through to the next model).
+ */
+function thinkingConfigFor(model: string): Record<string, unknown> | undefined {
+  if (model.startsWith("gemini-2.5")) return { thinkingBudget: 0 };
+  if (model.startsWith("gemini-3")) return { thinkingLevel: "low" };
+  return undefined;
+}
+
 async function callGemini(apiKey: string, prompt: string) {
   const models = [
     'gemini-3.1-flash-lite',
@@ -116,16 +129,18 @@ async function callGemini(apiKey: string, prompt: string) {
 
   for (const model of models) {
     try {
+      const thinkingConfig = thinkingConfigFor(model);
+      const requestBody: Record<string, unknown> = {
+        contents: [{ parts: [{ text: prompt }] }],
+      };
+      if (thinkingConfig) requestBody.generationConfig = { thinkingConfig };
+
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt }]
-          }]
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
